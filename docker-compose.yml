@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  account-db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: account
+    ports:
+      - "5433:5432"
+    volumes:
+      - account-db-data:/var/lib/postgresql/data
+
+  account-service:
+    build:
+      context: ./account-service
+    command: npm run dev
+    volumes:
+      - ./account-service:/app
+    environment:
+      - PORT=3001
+      - DB_HOST=account-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=account
+      - JWT_SECRET=supersecretkey
+    depends_on:
+      - account-db
+    ports:
+      - "3001:3001"
+
+  character-db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: character
+    ports:
+      - "5434:5432"
+    volumes:
+      - character-db-data:/var/lib/postgresql/data
+
+  character-service:
+    build:
+      context: ./character-service
+    command: npm run dev
+    volumes:
+      - ./character-service:/app
+    environment:
+      - PORT=3002
+      - DB_HOST=character-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=character
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - character-db
+      - redis
+    ports:
+      - "3002:3002"
+
+  combat-db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: combat
+    ports:
+      - "5435:5432"
+    volumes:
+      - combat-db-data:/var/lib/postgresql/data
+
+  combat-service:
+    build:
+      context: ./combat-service
+    command: npm run dev
+    volumes:
+      - ./combat-service:/app
+    environment:
+      - PORT=3003
+      - DB_HOST=combat-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=combat
+    depends_on:
+      - combat-db
+    ports:
+      - "3003:3003"
+
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  account-db-data:
+  character-db-data:
+  combat-db-data:
+  redis-data:
