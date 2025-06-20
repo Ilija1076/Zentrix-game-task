@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import express from 'express';
-import router from './route/characterRoutes';
+import characterRouter from './route/characterRoutes';
+import itemRouter from './route/itemRoutes';
 import dotenv from 'dotenv';
 import { AppDataSource } from './datasource';
 
@@ -17,7 +18,8 @@ app.get('/health', (req, res) => {
 });
 
 
-app.use('/api/character',  router);
+app.use('/api/character',  characterRouter);
+app.use('/api/items', itemRouter); 
 
 const PORT = process.env.PORT || 3002;
 
