@@ -1,10 +1,12 @@
-import {Request, Response, NextFunction} from "express";
+import { Request, Response, NextFunction } from "express";
 
-export function isGameMaser(req:Request, res:Response, next:NextFunction){
-    if(req.user?.role === "gamemaster"){
-        return next();
+export function isGameMaster(req: Request, res: Response, next: NextFunction): void {
+    if (req.user?.role === "gamemaster") {
+        next();
+        return;
     }
-    return res.status(403).json({
+    res.status(403).json({
         message: "You have to be a game master to access."
     });
+    return;
 }

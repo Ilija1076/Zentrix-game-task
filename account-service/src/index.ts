@@ -22,7 +22,7 @@ app.get('/health', (req, res) => {
 
 
 app.post('/register', async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { username, password, role } = req.body;
   if (!username || !password) {
     res.status(400).json({ message: 'Username and password are required' });
     return;
@@ -34,7 +34,7 @@ app.post('/register', async (req: Request, res: Response) => {
     return;
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = userRepo.create({ username, password: hashedPassword });
+  const user = userRepo.create({ username, password: hashedPassword, role: role === "gamemaster" ? "gamemaster" : "user" });
   await userRepo.save(user);
   res.status(201).json({ message: 'User registered' });
 });
@@ -57,7 +57,7 @@ app.post('/login', async (req:Request, res: Response) => {
         return;
     }
     const token = jwt.sign(
-        {userId: user.id, username: user.username},
+        {id: user.id, username: user.username, role: user.role},
         process.env.JWT_SECRET || 'secret_secret_jwt',
         {expiresIn: '1h'}
     );

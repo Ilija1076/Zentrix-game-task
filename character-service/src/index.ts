@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import express from 'express';
+import characterRouter from './route/characterRoutes';
 import dotenv from 'dotenv';
+import { AppDataSource } from './datasource';
 
 dotenv.config();
 
@@ -14,8 +16,17 @@ app.get('/health', (req, res) => {
     });
 });
 
+
+
+app.use('/api/character',  characterRouter);
+
 const PORT = process.env.PORT || 3002;
 
-app.listen(PORT,  () => {
-    console.log(`Character Service running on port ${PORT}`);
-})
+AppDataSource.initialize().then(() => {
+    console.log('Database connected successfully.');
+    app.listen(PORT,  () => {
+        console.log(`Character Service running on port ${PORT}`);
+    });
+}).catch((err) => {
+    console.error('Database connection error: ', err);
+});
