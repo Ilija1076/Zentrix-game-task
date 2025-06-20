@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import express from 'express';
-import characterRouter from './route/characterRoutes';
+import router from './route/characterRoutes';
 import dotenv from 'dotenv';
 import { AppDataSource } from './datasource';
 
 dotenv.config();
-
+console.log('JWT_SECRET in character service:', process.env.JWT_SECRET);
 const app = express();
 
 app.use(express.json());
@@ -17,8 +17,7 @@ app.get('/health', (req, res) => {
 });
 
 
-
-app.use('/api/character',  characterRouter);
+app.use('/api/character',  router);
 
 const PORT = process.env.PORT || 3002;
 

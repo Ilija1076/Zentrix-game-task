@@ -8,7 +8,7 @@ import { AppDataSource } from './datasource';
 import { User } from './entity/User';
 
 dotenv.config();
-
+console.log('JWT_SECRET in account service:', process.env.JWT_SECRET);
 const app = express();
 
 app.use(express.json());
@@ -58,7 +58,7 @@ app.post('/login', async (req:Request, res: Response) => {
     }
     const token = jwt.sign(
         {id: user.id, username: user.username, role: user.role},
-        process.env.JWT_SECRET || 'secret_secret_jwt',
+        process.env.JWT_SECRET || "secret_secret_jwt",
         {expiresIn: '1h'}
     );
     res.json({token});
