@@ -47,7 +47,6 @@ services:
   character-service:
     build:
       context: ./character-service
-    command: npm run dev
     volumes:
       - ./character-service:/app
     environment:
