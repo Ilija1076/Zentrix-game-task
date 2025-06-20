@@ -64,6 +64,26 @@ services:
       - redis
     ports:
       - "3002:3002"
+      
+  character-test:
+    build:
+      context: ./character-service
+    volumes:
+      - ./character-service:/app
+    environment:
+      - PORT=3002
+      - DB_HOST=character-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=character
+      - JWT_SECRET=secret_secret_jwt
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - character-db
+      - redis
+    command: ["npm", "test"]
 
   combat-db:
     image: postgres:16
