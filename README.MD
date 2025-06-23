@@ -37,7 +37,7 @@ The recommended way to run all services and dependencies is via Docker Compose.
 ### **How to Start All Services**
 
 **Build and start all containers:**
-    ```sh
+    ```
     docker-compose up --build
     ```
 - **Access points:**  
