@@ -45,3 +45,7 @@ The recommended way to run all services and dependencies is via Docker Compose.
   - Character Service: [http://localhost:3002](http://localhost:3002)
   - Combat Service: [http://localhost:3003](http://localhost:3003)
 
+**Build and start all tests:**
+    ```
+    docker-compose --profile test up --build character-test
+    ```
