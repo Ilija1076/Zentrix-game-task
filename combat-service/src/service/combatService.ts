@@ -66,6 +66,19 @@ export async function performAction(
     const duel = await duelRepo.findOneBy({ id: duelId });
     if (!duel) throw { status: 404, message: "Duel not found." };
 
+    const now = Date.now();
+    const start = new Date(duel.startTime).getTime();
+    const fiveMinutes = 5 * 60 * 1000;
+    if (!duel.endTime && (now - start > fiveMinutes)) {
+        duel.isDraw = true;
+        duel.endTime = new Date();
+        await duelRepo.save(duel);
+        return {
+            duel,
+            log: "Duel ended in a draw after 5 minutes."
+        };
+    }
+
     const charA = await fetchCharacter(duel.characterAId, jwt);
     const charB = await fetchCharacter(duel.characterBId, jwt);
     if (!charA || !charB) throw { status: 404, message: "One or both characters not found." };

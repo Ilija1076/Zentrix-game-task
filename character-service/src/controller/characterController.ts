@@ -4,7 +4,7 @@ import { Character } from "../entity/Character";
 import { Class } from "../entity/Class";
 import redis from "../redisConf";
 
-const CACHE_TTL = 300; // 5 minutes
+const CACHE_TTL = 300; 
 
 export async function getAllCharacters(req: Request, res: Response): Promise<void> {
     const repo = AppDataSource.getRepository(Character);

@@ -2,6 +2,7 @@ import { Request,Response } from "express";
 import { AppDataSource } from "../datasource";
 import { Item } from "../entity/Item";
 import { Character } from "../entity/Character";
+import { invalidateCharacterCache } from "./characterController";
 
 export async function getAllItems(req: Request, res:Response){
     const items = await AppDataSource.getRepository(Item).find();
@@ -69,13 +70,13 @@ export async function grantItemToCharacter(req: Request, res: Response){
     }
     character.items.push(item);
     await charRepo.save(character);
-
+    await invalidateCharacterCache(character.id);
     res.json({message: "Item granted to the character"});
 
 }
 
 export async function giftItem(req:Request,res:Response){
-    const {fromCharacterId, toCharacterId, itemId} = req.body;
+    const {fromCharacterId, toCharacterId, itemId, random} = req.body;
     const charRepo = AppDataSource.getRepository(Character);
 
     const fromChar = await charRepo.findOne({
@@ -92,15 +93,26 @@ export async function giftItem(req:Request,res:Response){
         });
         return;
     }
-     const itemIdx = fromChar.items.findIndex(i => i.id == itemId);
+
+    let itemToGiftId = itemId;
+    if (random) {
+        if (!fromChar.items || fromChar.items.length === 0) {
+            res.status(400).json({ message: "No items to gift" });
+            return;
+        }
+        const randomIdx = Math.floor(Math.random() * fromChar.items.length);
+        itemToGiftId = fromChar.items[randomIdx].id;
+    }
+
+    const itemIdx = fromChar.items.findIndex(i => i.id == itemToGiftId);
     if (itemIdx === -1) {
-         res.status(400).json({ message: "Item not owned by fromCharacter" });
-         return;
+        res.status(400).json({ message: "Item not owned by fromCharacter" });
+        return;
     }
     const [item] = fromChar.items.splice(itemIdx, 1);
     toChar.items.push(item);
     await charRepo.save([fromChar, toChar]);
-    
+    await invalidateCharacterCache(fromChar.id); 
+    await invalidateCharacterCache(toChar.id);
     res.json({ message: "Item gifted between characters" });
 }
-

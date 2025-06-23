@@ -11,6 +11,15 @@ const app = express();
 
 app.use(express.json());
 
+
+if (process.env.NODE_ENV === "test") {
+  app.use((req, res, next) => {
+    req.user = { id: 2, username: "gamemaster", role: "gamemaster" };
+    next();
+  });
+}
+
+
 app.get('/health', (req, res) => {
     res.json({
         status: 'Character Service is running'
@@ -32,4 +41,4 @@ AppDataSource.initialize().then(() => {
     console.error('Database connection error: ', err);
 });
 
-export { app };
+export { app }; 
