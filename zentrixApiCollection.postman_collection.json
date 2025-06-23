@@ -1,0 +1,525 @@
+{
+	"info": {
+		"_postman_id": "cebcb858-e5aa-45cd-8e8b-173dae50480e",
+		"name": "zentrixApiCollection",
+		"description": "A Postman collection for testing all API endpoints is provided in this repo.\n\nStart by registering and logging in as a user (and optionally as a gamemaster)\n\nCreate a new environment in Postman.\n\nAdd variables such as `jwt_user,jwt_gamemaster,itemId..`\n\nPaste your JWT tokens after logging in the character.\n\nAfter creating characters/items, set their IDs in your environment to use them in later requests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27431602"
+	},
+	"item": [
+		{
+			"name": "Account Service",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser1\",\n  \"password\": \"testpass1\",\n  \"role\": \"gamemaster\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3001/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser1\",\n  \"password\": \"testpass1\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3001/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Account Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Character Service",
+			"item": [
+				{
+					"name": "Get All Characters (GM only)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_gamemaster}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3002/api/character/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"character",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Character by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3002/api/character/{{}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"character",
+								"{{}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Character",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"TestCharacter\",\n  \"classId\": 6,\n  \"health\": 100,\n  \"mana\": 30,\n  \"baseStrength\": 5,\n  \"baseAgility\": 5,\n  \"baseIntelligence\": 5,\n  \"baseFaith\": 5\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3002/api/character/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"character",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Character Service Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3002/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Item Service",
+			"item": [
+				{
+					"name": "Get All Items (GM only)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_gamemaster}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3002/api/items/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"items",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_gamemaster}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Item 999\",\n  \"description\": \"This is a test item for automated testing.\",\n  \"bonusStrength\": 1,\n  \"bonusAgility\": 2,\n  \"bonusIntelligence\": 3,\n  \"bonusFaith\": 4\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3002/api/items/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"items",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Item by ID (with suffix)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3002/api/items/{{itemId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"items",
+								"{{itemId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant Item to Character (GM only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_gamemaster}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"characterId\": {{characterId}},\n  \"itemId\": {{itemId}}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3002/api/items/grant",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"items",
+								"grant"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Gift Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fromCharacterId\": {{characterId}},\n  \"toCharacterId\": {{toCharacterId}},\n  \"itemId\": {{itemId}}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3002/api/items/gift",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"items",
+								"gift"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Combat Service",
+			"item": [
+				{
+					"name": "Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3003/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Challenge",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"challengerId\": {{characterId}},\n  \"opponentId\": {{opponentId}}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3003/api/challenge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"api",
+								"challenge"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Attack",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3003/api/{{duel_id}}/attack",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"api",
+								"{{duel_id}}",
+								"attack"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cast",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3003/api/{{duel_id}}/cast",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"api",
+								"{{duel_id}}",
+								"cast"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Heal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_user}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3003/api/{{duel_id}}/heal",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"api",
+								"{{duel_id}}",
+								"heal"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "jwt_user",
+			"value": ""
+		},
+		{
+			"key": "jwt_gamemaster",
+			"value": ""
+		},
+		{
+			"key": "characterId",
+			"value": "1"
+		},
+		{
+			"key": "opponentId",
+			"value": "2"
+		},
+		{
+			"key": "duel_id",
+			"value": "1"
+		},
+		{
+			"key": "itemId",
+			"value": "1"
+		},
+		{
+			"key": "toCharacterId",
+			"value": "2"
+		}
+	]
+}
