@@ -1,7 +1,12 @@
 import { AppDataSource } from "../datasource";
 import { Duel } from "../entity/Duel";
 import axios from "axios";
-
+import redis from "../redisConf";
+const ACTION_COOLDOWNS: Record<string, number> = {
+  attack: 1,
+  cast: 2,
+  heal: 2
+};
 const CHARACTER_SERVICE_URL = process.env.CHARACTER_SERVICE_URL || "http://character-service:3002";
 
 async function fetchCharacter(characterId: number, jwt: string) {
@@ -27,12 +32,7 @@ async function transferRandomItem(fromCharacterId: number, toCharacterId: number
     }
 }
 
-export async function startDuel(
-    challengerId: number,
-    opponentId: number,
-    userId: number,
-    jwt: string
-) {
+export async function startDuel(challengerId: number,opponentId: number,userId: number,jwt: string) {
     const challenger = await fetchCharacter(challengerId, jwt);
     if (!challenger) throw { status: 404, message: "Challenger character not found." };
     if (challenger.createdBy !== userId) throw { status: 403, message: "You do not own this character." };
@@ -56,12 +56,7 @@ export async function startDuel(
     return duel;
 }
 
-export async function performAction(
-    duelId: number,
-    userId: number,
-    action: "attack" | "cast" | "heal",
-    jwt: string
-) {
+export async function performAction(duelId: number,userId: number,action: "attack" | "cast" | "heal",jwt: string) {
     const duelRepo = AppDataSource.getRepository(Duel);
     const duel = await duelRepo.findOneBy({ id: duelId });
     if (!duel) throw { status: 404, message: "Duel not found." };
@@ -93,6 +88,12 @@ export async function performAction(
 
     if (duel.currentTurnCharId !== actorId) {
         throw { status: 403, message: "Not your turn." };
+    }
+
+    const cooldownKey = `cd:duel:${duelId}:char:${actorId}:action:${action}`;
+    const cooldown = await redis.ttl(cooldownKey);
+    if (cooldown > 0) {
+        throw { status: 429, message: `Action '${action}' is on cooldown for ${cooldown} more second(s).` };
     }
 
     const actorChar = actorId === duel.characterAId ? charA : charB;
@@ -141,5 +142,8 @@ export async function performAction(
     }
 
     await duelRepo.save(duel);
+    const cdSeconds = ACTION_COOLDOWNS[action];
+    await redis.set(cooldownKey, "1", "EX", cdSeconds);
+
     return { duel, log };
 }

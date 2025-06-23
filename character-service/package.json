@@ -9,7 +9,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "predev": "npx typeorm-ts-node-commonjs migration:run -d src/datasource.ts && npm run seed",
     "seed": "ts-node src/seed/index.ts",
-    "test": "jest"
+    "test": "jest --detectOpenHandles --forceExit"
   },
   "keywords": [],
   "author": "",

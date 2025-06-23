@@ -27,6 +27,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=account
       - JWT_SECRET=secret_secret_jwt
+      - INTERNAL_TEST_JWT=super_secret_test_token
     depends_on:
       - account-db
     ports:
@@ -47,6 +48,7 @@ services:
   character-service:
     build:
       context: ./character-service
+    command: npm run dev
     volumes:
       - ./character-service:/app
     environment:
@@ -57,6 +59,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=character
       - JWT_SECRET=secret_secret_jwt
+      - INTERNAL_TEST_JWT=super_secret_test_token
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
@@ -66,24 +69,25 @@ services:
       - "3002:3002"
       
   character-test:
+    profiles: ["test"]
     build:
       context: ./character-service
-    volumes:
-      - ./character-service:/app
     environment:
-      - PORT=3002
-      - DB_HOST=character-db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=character
-      - JWT_SECRET=secret_secret_jwt
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      PORT: 3002
+      DB_HOST: character-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: character
+      JWT_SECRET: secret_secret_jwt
+      INTERNAL_TEST_JWT: super_secret_test_token
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - character-db
       - redis
-    command: ["npm", "test"]
+    command: ["/bin/sh", "-c", "npx typeorm-ts-node-commonjs migration:run -d src/datasource.ts && npx ts-node src/seed/index.ts && npx jest --detectOpenHandles --forceExit"]
+
 
   combat-db:
     image: postgres:16
@@ -110,8 +114,11 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=combat
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - combat-db
+      - redis
     ports:
       - "3003:3003"
 

@@ -1,15 +1,15 @@
-import { Request,Response } from "express";
+import { Request, Response } from "express";
 import { AppDataSource } from "../datasource";
 import { Item } from "../entity/Item";
 import { Character } from "../entity/Character";
 import { invalidateCharacterCache } from "./characterController";
 
-export async function getAllItems(req: Request, res:Response){
+export async function getAllItems(req: Request, res: Response) {
     const items = await AppDataSource.getRepository(Item).find();
     res.json(items);
 }
 
-export async function createItem(req:Request,res:Response){
+export async function createItem(req: Request, res: Response) {
     const repo = AppDataSource.getRepository(Item);
     const item = repo.create(req.body);
     await repo.save(item);
@@ -46,48 +46,53 @@ export async function getItemByIdWithSuffix(req: Request, res: Response) {
     });
 }
 
-export async function grantItemToCharacter(req: Request, res: Response){
-    const {characterId,itemId} = req.body;
+export async function grantItemToCharacter(req: Request, res: Response) {
+    const { characterId, itemId } = req.body;
     const charRepo = AppDataSource.getRepository(Character);
     const itemRepo = AppDataSource.getRepository(Item);
 
     const character = await charRepo.findOne({
-        where: {id: characterId},
+        where: { id: characterId },
         relations: ["items"]
     });
-    if(!character){
+    if (!character) {
         res.status(404).json({
             message: "Character not found."
         });
         return;
     }
-    const item = await itemRepo.findOneBy({ id: itemId});
-    if(!item){
+    const item = await itemRepo.findOneBy({ id: itemId });
+    if (!item) {
         res.status(404).json({
             message: "Item not found."
         });
         return;
     }
+
+    if (character.items.some(i => i.id === itemId)) {
+        res.status(409).json({ message: "Character already has this item" });
+        return;
+    }
+
     character.items.push(item);
     await charRepo.save(character);
     await invalidateCharacterCache(character.id);
-    res.json({message: "Item granted to the character"});
-
+    res.json({ message: "Item granted to the character" });
 }
 
-export async function giftItem(req:Request,res:Response){
-    const {fromCharacterId, toCharacterId, itemId, random} = req.body;
+export async function giftItem(req: Request, res: Response) {
+    const { fromCharacterId, toCharacterId, itemId, random } = req.body;
     const charRepo = AppDataSource.getRepository(Character);
 
     const fromChar = await charRepo.findOne({
-        where: {id: fromCharacterId},
+        where: { id: fromCharacterId },
         relations: ["items"]
     });
     const toChar = await charRepo.findOne({
         where: { id: toCharacterId },
         relations: ["items"]
     });
-    if(!fromChar || !toChar){
+    if (!fromChar || !toChar) {
         res.status(404).json({
             message: "Character not found"
         });
@@ -112,7 +117,7 @@ export async function giftItem(req:Request,res:Response){
     const [item] = fromChar.items.splice(itemIdx, 1);
     toChar.items.push(item);
     await charRepo.save([fromChar, toChar]);
-    await invalidateCharacterCache(fromChar.id); 
+    await invalidateCharacterCache(fromChar.id);
     await invalidateCharacterCache(toChar.id);
     res.json({ message: "Item gifted between characters" });
 }
